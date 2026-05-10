@@ -1,44 +1,65 @@
-<!DOCTYPE html>
-<html lang="hi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>मेरा कैलकुलेटर</title>
-    
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
+import React, { useState } from 'react';
+import { StyleSheet, Text, View, TouchableOpacity, SafeAreaView } from 'react-native';
 
-    <div class="calculator">
-        <input type="text" id="display" disabled>
-        
-        <div class="buttons">
-            <button onclick="clearDisplay()" class="operator">C</button>
-            <button onclick="deleteLast()">DEL</button>
-            <button onclick="appendToDisplay('/')" class="operator">÷</button>
-            <button onclick="appendToDisplay('*')" class="operator">×</button>
-            
-            <button onclick="appendToDisplay('7')">7</button>
-            <button onclick="appendToDisplay('8')">8</button>
-            <button onclick="appendToDisplay('9')">9</button>
-            <button onclick="appendToDisplay('-')" class="operator">-</button>
-            
-            <button onclick="appendToDisplay('4')">4</button>
-            <button onclick="appendToDisplay('5')">5</button>
-            <button onclick="appendToDisplay('6')">6</button>
-            <button onclick="appendToDisplay('+')" class="operator">+</button>
-            
-            <button onclick="appendToDisplay('1')">1</button>
-            <button onclick="appendToDisplay('2')">2</button>
-            <button onclick="appendToDisplay('3')">3</button>
-            <button onclick="calculate()" class="equal-btn">=</button>
-            
-            <button onclick="appendToDisplay('0')" class="zero-btn">0</button>
-            <button onclick="appendToDisplay('.')">.</button>
-        </div>
-    </div>
+export default function Calculator() {
+  const [display, setDisplay] = useState('');
 
-    <script src="script.js"></script>
+  const handlePress = (value) => {
+    if (value === 'C') {
+      setDisplay('');
+    } else if (value === 'DEL') {
+      setDisplay(display.slice(0, -1));
+    } else if (value === '=') {
+      try {
+        setDisplay(eval(display).toString());
+      } catch (e) {
+        setDisplay('Error');
+      }
+    } else {
+      setDisplay(display + value);
+    }
+  };
 
-</body>
-</html>
+  const buttons = [
+    ['C', 'DEL', '/', '*'],
+    ['7', '8', '9', '-'],
+    ['4', '5', '6', '+'],
+    ['1', '2', '3', '='],
+    ['0', '.']
+  ];
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <View style={styles.displayContainer}>
+        <Text style={styles.displayText}>{display || '0'}</Text>
+      </View>
+      <View style={styles.buttonsContainer}>
+        {buttons.map((row, i) => (
+          <View key={i} style={styles.row}>
+            {row.map((char) => (
+              <TouchableOpacity 
+                key={char} 
+                style={[styles.button, char === '=' ? styles.equalBtn : (isNaN(char) ? styles.operatorBtn : null)]} 
+                onPress={() => handlePress(char)}
+              >
+                <Text style={styles.buttonText}>{char}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        ))}
+      </View>
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: '#111', justifyContent: 'flex-end' },
+  displayContainer: { padding: 20, alignItems: 'flex-end' },
+  displayText: { color: '#fff', fontSize: 60 },
+  buttonsContainer: { padding: 10 },
+  row: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 },
+  button: { width: '22%', height: 70, backgroundColor: '#333', justifyContent: 'center', alignItems: 'center', borderRadius: 10 },
+  operatorBtn: { backgroundColor: '#f39c12' },
+  equalBtn: { backgroundColor: '#27ae60', flexGrow: 1, marginLeft: 10 },
+  buttonText: { color: '#fff', fontSize: 24, fontWeight: 'bold' }
+});
